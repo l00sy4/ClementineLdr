@@ -2,11 +2,21 @@ use core::mem::size_of;
 
 #[link_section = ".text"]
 pub unsafe fn fix_reloc(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize, relocation_address: usize) -> bool {
+
+    if data_directory.is_null()  {
+        return false;
+    }
+
     let mut image_base_relocation = (base_address + (*data_directory).VirtualAddress as usize) as *mut IMAGE_BASE_RELOCATION;
+
+    if image_base_relocation.is_null() {
+        return false;
+    }
+
     let delta: usize = base_address - relocation_address;
 
     while (*image_base_relocation).VirtualAddress {
-        let base_relocation_entry = (image_base_relocation as usize + 1) as *mut BASE_RELOCATION_ENTRY;
+        let mut base_relocation_entry = (image_base_relocation as usize + 1) as *mut BASE_RELOCATION_ENTRY;
         let number_of_entries: usize = (*image_base_relocation).SizeOfBlock as usize - (size_of::<IMAGE_BASE_RELOCATION>()) / size_of::<u16>();
 
         for _ in 0..number_of_entries {
@@ -20,7 +30,7 @@ pub unsafe fn fix_reloc(data_directory: *const IMAGE_DATA_DIRECTORY, base_addres
                 _ => { return false;}
             }
 
-            base_relocation_entry as usize += 1;
+            base_relocation_entry = (base_relocation_entry as usize +1) as *mut BASE_RELOCATION_ENTRY;
         }
         image_base_relocation = (image_base_relocation as usize + (*image_base_relocation).SizeOfBlock as usize) as *mut IMAGE_BASE_RELOCATION;
     }
