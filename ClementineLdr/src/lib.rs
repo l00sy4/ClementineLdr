@@ -18,7 +18,10 @@ pub use windows_sys::{
             },
             Threading::{
                 PPS_POST_PROCESS_INIT_ROUTINE,
-                RTL_USER_PROCESS_PARAMETERS
+                RTL_USER_PROCESS_PARAMETERS,
+                PTP_CALLBACK_INSTANCE, PTP_WORK,
+                PTP_WORK_CALLBACK,
+                TP_CALLBACK_ENVIRON_V3,
             },
             Kernel::{
                 LIST_ENTRY,
