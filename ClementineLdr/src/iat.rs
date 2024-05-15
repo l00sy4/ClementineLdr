@@ -3,9 +3,6 @@ use crate::reloc::IMAGE_DATA_DIRECTORY;
 #[link_section = ".text"]
 pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize) -> bool {
 
-    for i in 0..((*data_directory).Size as usize) {
-
-    }
 
 
     false
