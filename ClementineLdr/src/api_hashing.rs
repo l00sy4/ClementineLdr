@@ -15,7 +15,7 @@ pub unsafe fn get_module_handle(module_hash: u32) -> Option<HMODULE> {
         let name_length = (*module).BaseDllName.Length as usize;
         let name_slice = from_raw_parts(name_buffer as *const u8, name_length);
 
-        if module_hash == crc32b_hash(name_slice)
+        if module_hash == dbj2_hash(name_slice)
         {
             return Some((*module).DllBase as HMODULE);
         }
@@ -50,7 +50,7 @@ pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<F
          let function_address = dll as usize + functions[ordinals[i]] as usize;
          let name_slice: &[u8] = from_raw_parts(function_name,get_cstring_length(function_name as *const char));
 
-         if crc32b_hash(name_slice) == function_hash {
+         if dbj2_hash(name_slice) == function_hash {
              return Some(*function_address as FARPROC);
          }
      }
@@ -59,25 +59,32 @@ pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<F
 }
 
 #[link_section = ".text"]
-pub unsafe fn crc32b_hash(buffer: &[u8]) -> u32
+pub fn dbj2_hash(buffer: &[u8]) -> u32
 {
-    let mut Mask: u32 = 0;
-    let mut Hash: u32 = 0xDEADEADF;
+    let mut hash: u32 = 5441;
     let mut i: usize = 0;
+    let mut cur: u8;
 
-    while i < buffer.len() {
+    while i < buffer.len()
+    {
+        cur = buffer[i];
 
-        Hash ^= buffer[i] as u32;
-
-        for _ in 0..8 {
-            Mask = !(Hash & 1);
-            Hash = (Hash >> 1) ^ (0xEDB88320 & Mask);
+        if cur == 0
+        {
+            i += 1;
+            continue;
         }
 
+        if cur >= ('a' as u8)
+        {
+            cur -= 0x20;
+        }
+
+        hash = ((hash << 5).wrapping_add(hash)) + cur as u32;
         i += 1;
     }
 
-    return !Hash;
+    return hash;
 }
 
 #[link_section = ".text"]

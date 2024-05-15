@@ -33,10 +33,11 @@ pub use windows_sys::{
 
 mod api_hashing;
 
-mod callback;
+
 mod reloc;
 mod iat;
 mod memory_perms;
+mod callback;
 
 #[export_name = "_fltused"]
 static _FLTUSED: i32 = 0;
