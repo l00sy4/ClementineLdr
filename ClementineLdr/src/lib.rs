@@ -27,7 +27,7 @@ pub use windows_sys::{
             Diagnostics::Debug::{IMAGE_NT_HEADERS32, IMAGE_NT_HEADERS64, IMAGE_DIRECTORY_ENTRY_EXPORT},
             WindowsProgramming::CLIENT_ID
         },
-        Foundation::{BOOL, BOOLEAN, HANDLE, HMODULE, FARPROC, UNICODE_STRING},
+        Foundation::{NTSTATUS, BOOL, BOOLEAN, HANDLE, HMODULE, FARPROC, UNICODE_STRING},
     }
 };
 
