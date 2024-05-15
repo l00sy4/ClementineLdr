@@ -1,8 +1,7 @@
 use crate::{
-    api_hashing::get_function_address,
+    api_hashing::{get_function_address, get_module_handle},
     FARPROC
 };
-use crate::api_hashing::get_module_handle;
 
 #[repr(C)]
 pub struct NtProtectVirtualMemory_Args {

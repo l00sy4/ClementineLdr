@@ -8,8 +8,8 @@ pub unsafe fn fix_mem_perms(base_address: usize, nt_headers: *const IMAGE_NT_HEA
 
     for i in (*nt_headers).FileHeader.NumberOfSections {
 
-        protection: u32 = 0;
-        old_protection: u32 = 0;
+        let protection: u32 = 0;
+        let old_protection: u32 = 0;
 
         match (*section_header).Characteristics[i] {
 
