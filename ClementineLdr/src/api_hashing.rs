@@ -115,7 +115,7 @@ pub unsafe fn GetPEB() -> *mut PEB {
         address = out(reg) address
         );
         address
-    }
+}
 
 
 #[repr(C)]

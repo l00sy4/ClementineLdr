@@ -32,6 +32,8 @@ pub use windows_sys::{
 };
 
 mod api_hashing;
+
+mod callback;
 mod reloc;
 mod iat;
 mod memory_perms;
