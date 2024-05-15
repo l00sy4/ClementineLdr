@@ -27,7 +27,6 @@ pub fn dbj2_hash(buffer: &[u8]) -> u32
 }
 
 fn main() {
-    unsafe {
         let functions: [&str; 2] = ["NtAllocateVirtualMemory", "NtProtectVirtualMemory"];
         let modules: [&str; 1] = ["ntdll"];
 
@@ -40,5 +39,4 @@ fn main() {
         for string in modules.iter() {
             println!("{}: {:#X}\r\n", string, dbj2_hash(string.as_bytes()));
         }
-    }
 }
