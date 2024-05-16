@@ -49,24 +49,24 @@ pub unsafe fn exec_callback(args: functions_enum) -> bool {
 pub unsafe extern "stdcall" fn loadlibrary_callback(instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, work: PTP_WORK) {
     asm!("mov rbx, rdx",
          "mov rax, [rbx]",       // pointer to LoadLibraryA
-         "mov rcx, [rbx + 0x8]"  // pointer to string
-         "jmp rax"
+         "mov rcx, [rbx + 0x8]",  // pointer to string
+         "jmp rax",
         )
 }
 
 #[link_section = ".text"]
 pub unsafe extern "stdcall" fn nt_allocate_callback(instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, work: PTP_WORK) {
-    asm!("mov rbx, rdx"
-        "mov rax, [rbx]"
-        "mov rcx, [rbx + 0x8]"
-        "mov rdx, [rbx + 0x10]"
+    asm!("mov rbx, rdx",
+        "mov rax, [rbx]",
+        "mov rcx, [rbx + 0x8]",
+        "mov rdx, [rbx + 0x10]",
         "xor r8, r8",               // Credit: https://0xdarkvortex.dev/hiding-in-plainsight/
         "mov r9, [rbx + 0x18]",
         "mov r10, [rbx + 0x20]",
         "mov [rsp+0x30], r10",
         "mov r10, 0x3000",
         "mov [rsp+0x28], r10",
-        "jmp rax"
+        "jmp rax",
         )
 }
 
