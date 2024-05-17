@@ -1,6 +1,6 @@
 # Clementine
 
-Clementine loader is a fresh take on and old technique. Full x86 support is planned
+Clementine loader is a fresh take on and old technique. The project is still WIP, and I would love PRs!
 
 # Credits
 
