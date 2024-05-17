@@ -124,7 +124,6 @@ pub unsafe fn GetPEB() -> *mut PEB {
         address
 }
 
-
 #[repr(C)]
 pub struct PEB {
 

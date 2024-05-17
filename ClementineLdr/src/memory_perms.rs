@@ -1,4 +1,7 @@
 use crate::*;
+use crate::callback::functions_enum;
+use crate::callback::functions_enum::load_library_args;
+
 #[link_section = ".text"]
 pub unsafe fn fix_mem_perms(base_address: usize, nt_headers: *const IMAGE_NT_HEADERS64, section_header: *IMAGE_SECTION_HEADER) -> bool {
 
@@ -6,10 +9,14 @@ pub unsafe fn fix_mem_perms(base_address: usize, nt_headers: *const IMAGE_NT_HEA
         return false;
     }
 
+    let args = load_library_args { ,};
+
+    let load_library = functions_enum::load_library_args
+
     for i in (*nt_headers).FileHeader.NumberOfSections {
 
-        protection: u32 = 0;
-        old_protection: u32 = 0;
+        let protection: u32 = 0;
+        let old_protection: u32 = 0;
 
         match (*section_header).Characteristics[i] {
 

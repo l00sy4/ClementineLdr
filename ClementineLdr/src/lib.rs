@@ -18,7 +18,10 @@ pub use windows_sys::{
             },
             Threading::{
                 PPS_POST_PROCESS_INIT_ROUTINE,
-                RTL_USER_PROCESS_PARAMETERS
+                RTL_USER_PROCESS_PARAMETERS,
+                PTP_CALLBACK_INSTANCE, PTP_WORK,
+                PTP_WORK_CALLBACK,
+                TP_CALLBACK_ENVIRON_V3,
             },
             Kernel::{
                 LIST_ENTRY,
@@ -27,18 +30,21 @@ pub use windows_sys::{
             Diagnostics::Debug::{IMAGE_NT_HEADERS32, IMAGE_NT_HEADERS64, IMAGE_DIRECTORY_ENTRY_EXPORT},
             WindowsProgramming::CLIENT_ID
         },
-        Foundation::{BOOL, BOOLEAN, HANDLE, HMODULE, FARPROC, UNICODE_STRING},
+        Foundation::{NTSTATUS, BOOL, BOOLEAN, HANDLE, HMODULE, FARPROC, UNICODE_STRING},
     }
 };
 
 mod api_hashing;
-
-
 mod reloc;
 mod iat;
 mod memory_perms;
 mod callback;
 
+pub const NTDLL_HASH: u32 = 0x99A7385F;
+pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
+pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
+pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;
+pub const LOAD_LIBRARY_A_HASH: u32 =  0x514D6A17;
 #[export_name = "_fltused"]
 static _FLTUSED: i32 = 0;
 
