@@ -8,7 +8,7 @@ use crate::{
         get_module_handle,
         get_function_address
     },
-    LOAD_LIBRARY_A_HASH
+    LOAD_LIBRARY_A_HASH, KERNEL32_HASH
 };
 
 #[link_section = ".text"]
@@ -24,8 +24,6 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         return false;
     }
 
-    let load_library_pointer = get_function_address(get_module_handle(KERNEL32_HASH), LOAD_LIBRARY_A_HASH).unwrap();
-
     while (*import_descriptor).Name != 0 {
 
         let dll_name = (base_address + (*import_descriptor).Name as usize) as *const u8;
@@ -33,7 +31,6 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         if dll_name.is_null() {
             return false;
         }
-
 
 
     }
