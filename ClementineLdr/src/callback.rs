@@ -20,6 +20,8 @@ type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *
 type TpPostWork = unsafe extern "system" fn(PTP_WORK);
 type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
 
+
+// WIP >:(
 #[link_section = ".text"]
 pub unsafe fn exec_callback(args:) -> bool {
 
