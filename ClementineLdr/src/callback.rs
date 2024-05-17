@@ -65,13 +65,13 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
 }
 
 #[repr(C)]
-pub struct load_library {
+pub struct load_library_args {
     function_pointer: usize,
     library_name: str,
 }
 
 #[repr(C)]
-pub struct nt_alloc {
+pub struct nt_alloc_args {
     function_pointer: usize,
     process: HANDLE,
     address: *mut c_void,
