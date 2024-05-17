@@ -27,8 +27,8 @@ pub fn dbj2_hash(buffer: &[u8]) -> u32
 }
 
 fn main() {
-        let functions: [&str; 2] = ["NtAllocateVirtualMemory", "NtProtectVirtualMemory"];
-        let modules: [&str; 1] = ["ntdll"];
+        let functions: [&str; 3] = ["NtAllocateVirtualMemory", "NtProtectVirtualMemory", "LoadLibraryA"];
+        let modules: [&str; 2] = ["ntdll", "kernel32"];
 
         println!("Functions ---------------\r\n");
         for func in functions.iter() {
