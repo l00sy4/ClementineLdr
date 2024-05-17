@@ -4,7 +4,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-pub use core::{ffi::c_void, arch::asm, slice::from_raw_parts};
+pub use core::{ffi::c_void, arch::asm, slice::from_raw_parts, mem::size_of};
 
 pub use windows_sys::{
     Win32:: {

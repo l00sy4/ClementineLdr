@@ -1,4 +1,4 @@
-use core::mem::size_of;
+use crate::size_of;
 
 #[link_section = ".text"]
 pub unsafe fn fix_reloc(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize, relocation_address: usize) -> bool {
