@@ -1,3 +1,4 @@
+use std::ffi::CString;
 use windows_sys::{
     Win32::{
         System::{
@@ -9,6 +10,7 @@ use windows_sys::{
                 Debug::{IMAGE_NT_HEADERS32, IMAGE_NT_HEADERS64},
                 Debug::IMAGE_SECTION_HEADER
             },
+            LibraryLoader::LoadLibraryA
         }
     }
 };
@@ -37,8 +39,23 @@ pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
 
 pub unsafe fn get_dll_address(dll_name: *const u8) -> Option<isize> {
 
-    None;
+    let address= LoadLibraryA(dll_name);
+
+    if address == 0 {
+        return None;
+    }
+
+    return Some(address);
 }
 
 fn main() {
+
+unsafe {
+    let ntdll_name  = CString::new("ntdll").unwrap().as_bytes().as_ptr();
+    let kernel32_name = CString::new("kernel32").unwrap().as_bytes().as_ptr();
+
+    let ntdll_address: isize = get_dll_address(ntdll_name).unwrap();
+    let kernel32_address: isize = get_dll_address(kernel32_name).unwrap();
+    }
+
 }
