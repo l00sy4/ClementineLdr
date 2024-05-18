@@ -1,3 +1,5 @@
+use std::ffi::CString;
+use windows_sys::Win32::System::LibraryLoader::LoadLibraryA;
 pub fn dbj2_hash(buffer: &[u8]) -> u32
 {
     let mut hash: u32 = 5441;
@@ -28,11 +30,23 @@ pub fn dbj2_hash(buffer: &[u8]) -> u32
 
 fn main() {
 
-        let functions: [&str; 4] = ["TpAllocWork", "TpPostWork", "TpReleaseWork", "LoadLibraryA"];
+    let functions: [&str; 6] = ["TpAllocWork", "TpPostWork", "TpReleaseWork", "LoadLibraryA",
+        "NtProtectVirtualMemory", "NtAllocateVirtualMemory"];
 
-        println!("Functions ---------------\r\n");
-        for func in functions.iter() {
-            println!("{}: {:#X}\n", func, dbj2_hash(func.as_bytes()));
-        }
+    println!("Functions ---------------\r\n");
+    for func in functions.iter() {
+        println!("{}: {:#X}", func, dbj2_hash(func.as_bytes()));
+    }
 
+    println!("\nModules ---------------\r\n");
+    unsafe {
+        let kernel32 = CString::new("kernel32").unwrap();
+        let ntdll = CString::new("ntdll").unwrap();
+
+        let kernel32_address= LoadLibraryA(kernel32.as_bytes().as_ptr());
+        let ntdll_address= LoadLibraryA(ntdll.as_bytes().as_ptr());
+
+        println!("Kernel32 address: {:#X}", kernel32_address);
+        println!("NTDLL address: {:#X}", ntdll_address);
+    }
 }

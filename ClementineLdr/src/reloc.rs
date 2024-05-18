@@ -28,7 +28,6 @@ pub unsafe fn fix_reloc(data_directory: *const IMAGE_DATA_DIRECTORY, base_addres
     return true;
 }
 
-
 #[repr(C)]
 pub struct IMAGE_DATA_DIRECTORY {
     pub VirtualAddress: u32,
