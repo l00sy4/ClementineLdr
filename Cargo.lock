@@ -5,9 +5,6 @@ version = 3
 [[package]]
 name = "ClementineHelper"
 version = "0.1.0"
-dependencies = [
- "windows-sys",
-]
 
 [[package]]
 name = "ClementineInject"

@@ -35,5 +35,10 @@ pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
     return None;
 }
 
+pub unsafe fn get_dll_address(dll_name: *const u8) -> Option<isize> {
+
+    None;
+}
+
 fn main() {
 }
