@@ -27,16 +27,12 @@ pub fn dbj2_hash(buffer: &[u8]) -> u32
 }
 
 fn main() {
-        let functions: [&str; 2] = ["NtAllocateVirtualMemory", "NtProtectVirtualMemory"];
-        let modules: [&str; 1] = ["ntdll"];
+
+        let functions: [&str; 4] = ["TpAllocWork", "TpPostWork", "TpReleaseWork", "LoadLibraryA"];
 
         println!("Functions ---------------\r\n");
         for func in functions.iter() {
             println!("{}: {:#X}\n", func, dbj2_hash(func.as_bytes()));
         }
 
-        println!("Modules ---------------\r\n");
-        for string in modules.iter() {
-            println!("{}: {:#X}\r\n", string, dbj2_hash(string.as_bytes()));
-        }
 }

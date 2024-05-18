@@ -41,8 +41,8 @@ mod memory_perms;
 mod callback;
 mod sleep;
 
-pub const NTDLL_HASH: u32 = 0x99A7385F;
-pub const KERNEL32_HASH: u32 = 0x848B1F47;
+pub const NTDLL_ADDRESS: usize = 0x99A7385F;
+pub const KERNEL32_ADDRESS: usize = 0x848B1F47;
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
 pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;

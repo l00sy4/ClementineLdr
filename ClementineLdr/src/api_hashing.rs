@@ -16,33 +16,6 @@ use crate::{
     UNICODE_STRING
 };
 
-
-#[link_section = ".text"]
-pub unsafe fn get_module_handle(module_hash: u32) -> Option<HMODULE> {
-
-    let mut module = (*(*GetPEB()).Ldr).InLoadOrderModuleList.Flink as *mut LDR_DATA_TABLE_ENTRY;
-
-    if module_hash == 0 {
-        return Some((*module).DllBase as HMODULE)
-    }
-
-    while !(*module).DllBase.is_null() {
-
-        let name_buffer = (*module).BaseDllName.Buffer;
-        let name_length = (*module).BaseDllName.Length as usize;
-        let name_slice = from_raw_parts(name_buffer as *const u8, name_length);
-
-        if module_hash == dbj2_hash(name_slice)
-        {
-            return Some((*module).DllBase as HMODULE);
-        }
-
-        module = (*module).InLoadOrderLinks.Flink as *mut LDR_DATA_TABLE_ENTRY;
-    }
-
-    return None;
-}
-
  #[link_section = ".text"]
 pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<usize> {
 
