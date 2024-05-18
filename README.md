@@ -14,7 +14,7 @@ The helper component is where I included the code I used to calculate the functi
 
 ### Features
 
-- API hashing without walking the PEB. Since the injector will be backed my memory, it can safely call `LoadLibrary` and pass the address to the loader
+- API hashing without walking the PEB. Since the injector will be backed by a file, it can safely call `LoadLibrary` and pass the address to the loader
 
 - As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` to execute callbacks, as per the second reference
 
