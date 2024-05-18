@@ -39,6 +39,7 @@ mod reloc;
 mod iat;
 mod memory_perms;
 mod callback;
+mod sleep;
 
 pub const NTDLL_HASH: u32 = 0x99A7385F;
 pub const KERNEL32_HASH: u32 = 0x848B1F47;
