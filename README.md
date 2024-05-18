@@ -3,7 +3,7 @@ Clementine
 </h1>
 
 Clementine is a fresh take on reflective loading
- 
+
 
 ### Description
 
@@ -13,7 +13,7 @@ The injector is planned to be simple, as it's purpose will be to show off the lo
 
 The helper component is where I included the code I used to calculate the function names' hashes and print system addresses
 
- 
+ 
 ### Features
 
 - API hashing without walking the PEB
