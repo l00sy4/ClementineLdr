@@ -12,7 +12,7 @@ The injector is planned to be simple, as it's purpose will be to show off the lo
 
 - As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` as per the second reference
 
-- Delay execution without API calls
+- Sleeping via `KUSER_SHARED_DATA`
 
 - x86 support is planned
 
