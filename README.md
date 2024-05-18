@@ -1,7 +1,7 @@
 <h1 align="center">
 Clementine
 </h1>
- 
+
 Clementine is a fresh take on reflective loading
  
 
