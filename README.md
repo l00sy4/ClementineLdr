@@ -3,6 +3,7 @@ Clementine
 </h1>
  
 Clementine is a fresh take on reflective loading
+ 
 
 ### Description
 
@@ -11,7 +12,7 @@ The loader attempts to allocate the DLL at it's preferred address in order to av
 The injector is planned to be simple, as it's purpose will be to show off the loader itself. 
 
 The helper component is where I included the code I used to calculate the function names' hashes and print system addresses
-
+ 
 ### Features
 
 - API hashing without walking the PEB
@@ -25,7 +26,7 @@ The helper component is where I included the code I used to calculate the functi
 - Hooks
 
 - x86 support
-
+ 
 ### Credits
 
 - Everything would have took longer to implement without: https://github.com/memN0ps/venom-rs/tree/main
