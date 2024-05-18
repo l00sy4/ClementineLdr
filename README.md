@@ -26,7 +26,11 @@ The helper component is where I included the code I used to calculate the functi
 
 - x86 support
 
- 
+### Usage
+
+I'll complete this when the project is done
+
+ 
 # Credits
 
 - Everything would have took longer to implement without: https://github.com/memN0ps/venom-rs/tree/main
