@@ -9,7 +9,7 @@ pub unsafe fn get_time() -> usize {
     #[cfg(target_arch = "x86_64")]
     return ((time.HighPart as u64) << 32 | (time.LowPart as u64)) as usize;
     #[cfg(target_arch = "x86")]
-    return time.LowPart as usize; // Good enough for now
+    return time.LowPart as usize; // Good enough for now, lol
 }
 
 #[link_section = ".text"]

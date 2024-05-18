@@ -30,7 +30,7 @@ pub use windows_sys::{
             Diagnostics::Debug::{IMAGE_NT_HEADERS32, IMAGE_NT_HEADERS64, IMAGE_DIRECTORY_ENTRY_EXPORT},
             WindowsProgramming::CLIENT_ID
         },
-        Foundation::{NTSTATUS, BOOL, BOOLEAN, HANDLE, HMODULE, FARPROC, UNICODE_STRING},
+        Foundation::{NTSTATUS, BOOL, BOOLEAN, HMODULE, FARPROC, UNICODE_STRING},
     }
 };
 
@@ -41,8 +41,8 @@ mod memory_perms;
 mod callback;
 mod sleep;
 
-pub const NTDLL_HASH: u32 = 0x99A7385F;
-pub const KERNEL32_HASH: u32 = 0x848B1F47;
+pub const NTDLL_ADDRESS: isize = 0x7FF90EBF0000;
+pub const KERNEL32_ADDRESS: isize = 0x7FF90E3A0000;
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
 pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;

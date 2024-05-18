@@ -1,50 +1,14 @@
 use crate::{
-    HANDLE,
-    BOOLEAN,
-    asm,
-    from_raw_parts,
     IMAGE_DIRECTORY_ENTRY_EXPORT,
-    IMAGE_NT_SIGNATURE,
-    IMAGE_NT_HEADERS64,
     IMAGE_DOS_HEADER,
-    HMODULE,
-    LIST_ENTRY,
-    c_void,
     IMAGE_EXPORT_DIRECTORY,
-    RTL_USER_PROCESS_PARAMETERS,
-    PPS_POST_PROCESS_INIT_ROUTINE,
-    UNICODE_STRING
+    from_raw_parts,
+    IMAGE_NT_HEADERS64,
+    IMAGE_NT_SIGNATURE
 };
 
-
 #[link_section = ".text"]
-pub unsafe fn get_module_handle(module_hash: u32) -> Option<HMODULE> {
-
-    let mut module = (*(*GetPEB()).Ldr).InLoadOrderModuleList.Flink as *mut LDR_DATA_TABLE_ENTRY;
-
-    if module_hash == 0 {
-        return Some((*module).DllBase as HMODULE)
-    }
-
-    while !(*module).DllBase.is_null() {
-
-        let name_buffer = (*module).BaseDllName.Buffer;
-        let name_length = (*module).BaseDllName.Length as usize;
-        let name_slice = from_raw_parts(name_buffer as *const u8, name_length);
-
-        if module_hash == dbj2_hash(name_slice)
-        {
-            return Some((*module).DllBase as HMODULE);
-        }
-
-        module = (*module).InLoadOrderLinks.Flink as *mut LDR_DATA_TABLE_ENTRY;
-    }
-
-    return None;
-}
-
- #[link_section = ".text"]
-pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<usize> {
+pub unsafe fn get_function_address(dll: isize, function_hash: u32) -> Option<usize> {
 
      #[cfg(target_arch = "x86_64")]
          let nt_header = (dll as usize + (*(dll as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
@@ -115,86 +79,4 @@ pub unsafe fn get_cstring_length(string: *const char) -> usize
     }
 
     temp - string as usize
-}
-
-#[link_section = ".text"]
-pub unsafe fn GetPEB() -> *mut PEB {
-    let address: *mut PEB;
-    #[cfg(target_arch = "x86_64")]
-        asm!(
-        "xor rax, rax",
-        "mov rdx, rax",
-        "add dl, 0x65",
-        "sub rdx, 0x5",
-        "mov {address}, QWORD PTR gs:[rax + rdx * 1]",
-        address = out(reg) address
-        );
-    #[cfg(target_arch = "x86")]
-        asm!(
-        "xor eax, eax",
-        "mov ebx, eax",
-        "add bl, 0x47",
-        "sub ebx, 0x17",
-        "mov {address}, DWORD PTR fs:[eax + ebx * 1]",
-        address = out(reg) address
-        );
-        address
-}
-
-#[repr(C)]
-pub struct PEB {
-
-    pub Reserved1: [u8; 2],
-    pub BeingDebugged: u8,
-    pub Reserved2: [u8; 1],
-    pub Reserved3: [*mut c_void; 2],
-    pub Ldr: *mut PEB_LDR_DATA,
-    pub ProcessParameters: *mut RTL_USER_PROCESS_PARAMETERS,
-    pub Reserved4: [*mut c_void; 3],
-    pub AtlThunkSListPtr: *mut c_void,
-    pub Reserved5: *mut c_void,
-    pub Reserved6: u32,
-    pub Reserved7: *mut c_void,
-    pub Reserved8: u32,
-    pub AtlThunkSListPtr32: u32,
-    pub Reserved9: [*mut c_void; 45],
-    pub Reserved10: [u8; 96],
-    pub PostProcessInitRoutine: PPS_POST_PROCESS_INIT_ROUTINE,
-    pub Reserved11: [u8; 128],
-    pub Reserved12: [*mut c_void; 1],
-    pub SessionId: u32,
-}
-
-#[repr(C)]
-pub struct PEB_LDR_DATA {
-    pub Length: u32,
-    pub Initialized: BOOLEAN,
-    pub SsHandle: HANDLE,
-    pub InLoadOrderModuleList: LIST_ENTRY,
-    pub InMemoryOrderModuleList: LIST_ENTRY,
-    pub InInitializationOrderModuleList: LIST_ENTRY,
-    pub EntryInProgress: *mut c_void,
-    pub ShutdownInProgress: BOOLEAN,
-    pub ShutdownThreadId: HANDLE,
-}
-
-#[repr(C)]
-pub union LDR_DATA_TABLE_ENTRY_u1 {
-    pub InInitializationOrderLinks: LIST_ENTRY,
-    pub InProgressLinks: LIST_ENTRY,
-}
-
-pub type PLDR_INIT_ROUTINE = Option<unsafe extern "system" fn(DllHandle: *mut c_void, Reason: u32, Context: *mut c_void) -> BOOLEAN>;
-
-#[repr(C)]
-pub struct LDR_DATA_TABLE_ENTRY
-{
-    pub InLoadOrderLinks: LIST_ENTRY,
-    pub InMemoryOrderLinks: LIST_ENTRY,
-    pub u1: LDR_DATA_TABLE_ENTRY_u1,
-    pub DllBase: *mut c_void,
-    pub EntryPoint: PLDR_INIT_ROUTINE,
-    pub SizeOfImage: u32,
-    pub FullDllName: UNICODE_STRING,
-    pub BaseDllName: UNICODE_STRING,
 }

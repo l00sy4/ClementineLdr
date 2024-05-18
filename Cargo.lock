@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "ClementineHelper"
+version = "0.1.0"
+dependencies = [
+ "windows-sys",
+]
+
+[[package]]
 name = "ClementineInject"
 version = "0.1.0"
 dependencies = [
@@ -15,10 +22,6 @@ version = "0.1.0"
 dependencies = [
  "windows-sys",
 ]
-
-[[package]]
-name = "HashCalculator"
-version = "0.1.0"
 
 [[package]]
 name = "windows-sys"

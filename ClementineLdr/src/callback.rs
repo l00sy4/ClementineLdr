@@ -1,18 +1,17 @@
 use crate::{
-    api_hashing::get_function_address,
-    PTP_CALLBACK_INSTANCE,
     PTP_WORK,
+    HMODULE,
+    api_hashing::get_function_address,
     PTP_WORK_CALLBACK,
     TP_CALLBACK_ENVIRON_V3,
-    api_hashing::get_module_handle,
-    NTDLL_HASH,
     TP_ALLOC_WORK_HASH,
     TP_POST_WORK_HASH,
     TP_RELEASE_WORK_HASH,
     NTSTATUS,
     c_void,
     asm,
-    HANDLE
+    NTDLL_ADDRESS,
+    PTP_CALLBACK_INSTANCE
 };
 
 type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *mut c_void, *mut TP_CALLBACK_ENVIRON_V3) -> NTSTATUS;
@@ -21,11 +20,10 @@ type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
 
 #[link_section = ".text"]
 pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void) -> bool {
-    let ntdll_address = get_module_handle(NTDLL_HASH).unwrap();
 
-    let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
-    let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
-    let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
+    let tp_alloc_work = (*(get_function_address(NTDLL_ADDRESS, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
+    let tp_post_work = (*(get_function_address(NTDLL_ADDRESS, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
+    let tp_release_work = (*(get_function_address(NTDLL_ADDRESS, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
 
     let work_return: PTP_WORK = 0;
 
@@ -72,7 +70,7 @@ pub struct load_library_args {
 #[repr(C)]
 pub struct nt_alloc_args {
     pub function_pointer: usize,
-    pub process: HANDLE,
+    pub process: isize,
     pub address: *mut c_void,
     pub size: *mut usize,
     pub permissions: u32
@@ -81,7 +79,7 @@ pub struct nt_alloc_args {
 #[repr(C)]
 pub struct nt_protect_args {
     pub function_pointer: usize,
-    pub process: HANDLE,
+    pub process: isize,
     pub address: *mut c_void,
     pub size: *mut usize,
     pub access_protection: u32,
