@@ -66,7 +66,7 @@ pub unsafe extern "system" fn _DllMainCRTStartup(
 
 #[link_section = ".text"]
 #[no_mangle]
-pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void) {
+pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_address: isize, ntdll_address: isize) {
 
     if dll_address.is_null() {
         return;
