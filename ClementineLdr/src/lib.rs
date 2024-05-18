@@ -41,8 +41,6 @@ mod memory_perms;
 mod callback;
 mod sleep;
 
-pub const NTDLL_ADDRESS: isize = 0x7FF90EBF0000;
-pub const KERNEL32_ADDRESS: isize = 0x7FF90E3A0000;
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
 pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;
@@ -68,7 +66,7 @@ pub unsafe extern "system" fn _DllMainCRTStartup(
 
 #[link_section = ".text"]
 #[no_mangle]
-pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void) {
+pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_address: isize, ntdll_address: isize) {
 
     if dll_address.is_null() {
         return;
