@@ -2,8 +2,10 @@
 Clementine
 </h1>
 
-Clementine loader is a fresh take on and old technique. The project is still WIP, so I would love PRs!
+  
+Clementine loader is a fresh take on and old technique.
 
+  
 ### Description
 
 The loader attempts to allocate the DLL at it's preferred address in order to avoid performing relocation. Afterwards it will copy the DLL's sections in the allocated memory and proceed with relocation if needed. The DOS and NT headers are left out, as having them in private memory doesn't make sense. Before changing the protection of each section, it will resolve imports and call the user-defined exported function (in this case `ClementineInit` 
