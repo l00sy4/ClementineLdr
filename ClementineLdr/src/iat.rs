@@ -1,3 +1,4 @@
+use windows_sys::Win32::System::Threading::{PTP_CALLBACK_INSTANCE, PTP_WORK_CALLBACK};
 use crate::{
     reloc::IMAGE_DATA_DIRECTORY,
     callback::{
@@ -10,6 +11,7 @@ use crate::{
     },
     LOAD_LIBRARY_A_HASH, KERNEL32_HASH
 };
+use crate::callback::loadlibrary_callback;
 
 #[link_section = ".text"]
 pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize) -> bool {
@@ -24,15 +26,22 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         return false;
     }
 
+    let load_library_ptr = get_function_address(get_module_handle(KERNEL32_HASH).unwrap(), LOAD_LIBRARY_A_HASH).unwrap();
+
     while (*import_descriptor).Name != 0 {
 
-        let dll_name = (base_address + (*import_descriptor).Name as usize) as *const u8;
+        let dll_name = (base_address + (*import_descriptor).Name as usize) as *const i8;
 
         if dll_name.is_null() {
             return false;
         }
 
+        let args = load_library_args {
+            function_pointer: load_library_ptr,
+            library_name: dll_name
+        };
 
+        exec_callback(*(loadlibrary_callback) as PTP_WORK_CALLBACK, *args);
     }
 
     false
