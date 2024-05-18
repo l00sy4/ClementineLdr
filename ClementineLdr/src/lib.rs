@@ -46,6 +46,9 @@ pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
 pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;
 pub const LOAD_LIBRARY_A_HASH: u32 =  0x514D6A17;
+pub const NT_PROTECT_HASH: u32 = 0x3D7A5DC4;
+pub const NT_ALLOC_HASH: u32 = 0x763B95A8;
+
 #[export_name = "_fltused"]
 static _FLTUSED: i32 = 0;
 
@@ -64,6 +67,20 @@ pub unsafe extern "system" fn _DllMainCRTStartup(
 
 #[link_section = ".text"]
 #[no_mangle]
-pub unsafe extern "system" fn ClementineInit() {
+pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void) {
 
+    if dll_address.is_null() {
+        return;
+    }
+
+    let base_address = dll_address as usize;
+    #[cfg(target_arch = "x86_64")]
+        let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
+    #[cfg(target_arch = "x86")]
+        let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS32;
+
+    let dll_size = (*nt_header).OptionalHeader.SizeOfImage as usize;
+    let preferred_dll_address = (*nt_header).OptionalHeader.ImageBase as usize;
+
+    /* If loaded at it's preferred address, skip relocation and IAT reparation */
 }

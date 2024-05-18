@@ -27,7 +27,7 @@ pub unsafe fn get_module_handle(module_hash: u32) -> Option<HMODULE> {
 }
 
  #[link_section = ".text"]
-pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<FARPROC> {
+pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<usize> {
 
      #[cfg(target_arch = "x86_64")]
          let nt_header = (dll as usize + (*(dll as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
@@ -51,7 +51,7 @@ pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<F
          let name_slice: &[u8] = from_raw_parts(function_name,get_cstring_length(function_name as *const char));
 
          if dbj2_hash(name_slice) == function_hash {
-             return Some(*function_address as FARPROC);
+             return Some(*function_address as usize);
          }
      }
 

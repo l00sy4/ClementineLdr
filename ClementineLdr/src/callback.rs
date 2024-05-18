@@ -30,7 +30,6 @@ pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void) -> b
     let work_return: PTP_WORK = 0;
 
     tp_alloc_work(*work_return, callback, args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
-
     tp_post_work(work_return);
     tp_release_work(work_return);
 
@@ -66,15 +65,24 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
 
 #[repr(C)]
 pub struct load_library_args {
-    function_pointer: usize,
-    library_name: str,
+    pub function_pointer: usize,
+    pub library_name: *const i8,
 }
 
 #[repr(C)]
 pub struct nt_alloc_args {
-    function_pointer: usize,
-    process: HANDLE,
-    address: *mut c_void,
-    size: *mut usize,
-    permissions: u32
+    pub function_pointer: usize,
+    pub process: HANDLE,
+    pub address: *mut c_void,
+    pub size: *mut usize,
+    pub permissions: u32
+}
+
+#[repr(C)]
+pub struct nt_protect_args {
+    pub function_pointer: usize,
+    pub process: HANDLE,
+    pub address: *mut c_void,
+    pub size: *mut usize,
+    pub access_protection: u32,
 }
