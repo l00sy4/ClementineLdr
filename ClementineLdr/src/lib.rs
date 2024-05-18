@@ -41,8 +41,6 @@ mod memory_perms;
 mod callback;
 mod sleep;
 
-pub const NTDLL_ADDRESS: isize = 0x7FF90EBF0000;
-pub const KERNEL32_ADDRESS: isize = 0x7FF90E3A0000;
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
 pub const TP_RELEASE_WORK_HASH: u32 = 0xAB78109;
