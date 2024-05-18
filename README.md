@@ -10,7 +10,7 @@ The loader attempts to allocate the DLL at it's preferred address in order to av
 
 The injector is planned to be simple, as it's purpose will be to show off the loader itself
 
-The helper component is where I included the code I used to calculate the function names' hashes
+The helper component contains the code I used to calculate the function names' hashes
 
 ### Features
 
