@@ -12,7 +12,7 @@ The injector is planned to be simple, as it's purpose will be to show off the lo
 
 ### Features
 
-- As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` as per the second reference
+- As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` to create a custom call-stack, as per the second reference
 
 - Some sort of sleep mask, after I decide on the technique
 
