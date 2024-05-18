@@ -1,4 +1,6 @@
-# Clementine
+<h1 align="center">
+Clementine
+</h1>
 
 Clementine loader is a fresh take on and old technique. The project is still WIP, so I would love PRs!
 
