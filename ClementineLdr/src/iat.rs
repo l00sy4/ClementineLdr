@@ -4,11 +4,11 @@ use crate::{reloc::IMAGE_DATA_DIRECTORY, callback::{
     PTP_WORK_CALLBACK
 }, api_hashing::{
     get_function_address
-}, LOAD_LIBRARY_A_HASH, KERNEL32_ADDRESS};
+}, LOAD_LIBRARY_A_HASH};
 use crate::callback::loadlibrary_callback;
 
 #[link_section = ".text"]
-pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize) -> bool {
+pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize, kernel32_address: isize) -> bool {
 
     if data_directory.is_null() {
         return false;
@@ -20,7 +20,7 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
         return false;
     }
 
-    let load_library_ptr = get_function_address(KERNEL32_ADDRESS, LOAD_LIBRARY_A_HASH).unwrap();
+    let load_library_ptr = get_function_address(kernel32_address, LOAD_LIBRARY_A_HASH).unwrap();
 
     while (*import_descriptor).Name != 0 {
 

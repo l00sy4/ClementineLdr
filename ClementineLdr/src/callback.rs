@@ -10,7 +10,6 @@ use crate::{
     NTSTATUS,
     c_void,
     asm,
-    NTDLL_ADDRESS,
     PTP_CALLBACK_INSTANCE
 };
 
@@ -19,11 +18,11 @@ type TpPostWork = unsafe extern "system" fn(PTP_WORK);
 type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
 
 #[link_section = ".text"]
-pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void) -> bool {
+pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void, ntdll_address: isize) -> bool {
 
-    let tp_alloc_work = (*(get_function_address(NTDLL_ADDRESS, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
-    let tp_post_work = (*(get_function_address(NTDLL_ADDRESS, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
-    let tp_release_work = (*(get_function_address(NTDLL_ADDRESS, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
+    let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
+    let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
+    let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
 
     let work_return: PTP_WORK = 0;
 
