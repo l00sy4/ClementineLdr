@@ -1,4 +1,21 @@
-use crate::*;
+use crate::{
+    HANDLE,
+    BOOLEAN,
+    asm,
+    from_raw_parts,
+    IMAGE_DIRECTORY_ENTRY_EXPORT,
+    IMAGE_NT_SIGNATURE,
+    IMAGE_NT_HEADERS64,
+    IMAGE_DOS_HEADER,
+    HMODULE,
+    LIST_ENTRY,
+    c_void,
+    IMAGE_EXPORT_DIRECTORY,
+    RTL_USER_PROCESS_PARAMETERS,
+    PPS_POST_PROCESS_INIT_ROUTINE,
+    UNICODE_STRING
+};
+
 
 #[link_section = ".text"]
 pub unsafe fn get_module_handle(module_hash: u32) -> Option<HMODULE> {
@@ -32,7 +49,7 @@ pub unsafe fn get_function_address(dll: HMODULE, function_hash: u32) -> Option<u
      #[cfg(target_arch = "x86_64")]
          let nt_header = (dll as usize + (*(dll as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
      #[cfg(target_arch = "x86")]
-         let nt_header = (dll as usize + (*(dll as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS32;
+         let nt_header = (dll as usize + (*(dll as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut crate::IMAGE_NT_HEADERS32;
 
      if (*nt_header).Signature != IMAGE_NT_SIGNATURE
      {
