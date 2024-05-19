@@ -18,6 +18,8 @@ The helper component contains the code I used to calculate the function names' h
 
 - As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` to execute callbacks, as per the second reference
 
+- Sets up exception handlers and executes TLS callbacks for the DLL, if they exist
+
 ##### In Progress
 
 - Sleep mask using ROP chains
