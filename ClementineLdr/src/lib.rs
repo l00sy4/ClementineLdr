@@ -5,32 +5,53 @@
 #![allow(non_camel_case_types)]
 
 pub use core::{ffi::c_void, arch::asm, slice::from_raw_parts, mem::size_of};
+use core::mem::transmute;
+use core::ptr::null_mut;
 
 pub use windows_sys::{
-    Win32:: {
+    Win32::{
         System::{
+            Kernel::{
+                NT_TIB,
+                LIST_ENTRY
+            },
             SystemServices::{
                 DLL_PROCESS_ATTACH,
                 IMAGE_DOS_HEADER,
                 IMAGE_DOS_SIGNATURE,
                 IMAGE_NT_SIGNATURE,
                 IMAGE_EXPORT_DIRECTORY,
+                IMAGE_TLS_DIRECTORY64,
+                IMAGE_TLS_DIRECTORY32,
+                PIMAGE_TLS_CALLBACK
             },
             Threading::{
                 PPS_POST_PROCESS_INIT_ROUTINE,
-                RTL_USER_PROCESS_PARAMETERS,
-                PTP_CALLBACK_INSTANCE, PTP_WORK,
+                PTP_WORK,
                 PTP_WORK_CALLBACK,
                 TP_CALLBACK_ENVIRON_V3,
+                RTL_USER_PROCESS_PARAMETERS,
+                PTP_CALLBACK_INSTANCE
             },
-            Kernel::{
-                LIST_ENTRY,
-                NT_TIB
+            Diagnostics::{
+                Debug::{
+                    IMAGE_DIRECTORY_ENTRY_EXPORT,
+                    IMAGE_NT_HEADERS32,
+                    IMAGE_NT_HEADERS64,
+                    IMAGE_DIRECTORY_ENTRY_TLS,
+                    CONTEXT
+                }
             },
-            Diagnostics::Debug::{IMAGE_NT_HEADERS32, IMAGE_NT_HEADERS64, IMAGE_DIRECTORY_ENTRY_EXPORT},
             WindowsProgramming::CLIENT_ID
         },
-        Foundation::{NTSTATUS, BOOL, BOOLEAN, HMODULE, FARPROC, UNICODE_STRING},
+        Foundation::{
+            BOOLEAN,
+            BOOL,
+            NTSTATUS,
+            HMODULE,
+            FARPROC,
+            UNICODE_STRING
+        }
     }
 };
 
@@ -72,6 +93,10 @@ pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_
         return;
     }
 
+    if !kernel32_address || !ntdll_address {
+        return;
+    }
+
     let base_address = dll_address as usize;
     #[cfg(target_arch = "x86_64")]
         let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
@@ -82,4 +107,28 @@ pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_
     let preferred_dll_address = (*nt_header).OptionalHeader.ImageBase as usize;
 
     /* If loaded at it's preferred address, skip relocation and IAT reparation */
+
+    // ...
+
+    /* Execute TLS callbacks, if they exist */
+    if !(*nt_header).OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize].Size {
+        #[cfg(target_arch = "x86_64")]
+            let image_tls_directory = (base_address + (*nt_header).OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize].VirtualAddress as usize) as *mut IMAGE_TLS_DIRECTORY64;
+        #[cfg(target_arch = "x86")]
+            let image_tls_directory = (base_address + (*nt_header).OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize].VirtualAddress as usize) as *mut IMAGE_TLS_DIRECTORY32;
+
+        let mut tls_callback = (*image_tls_directory).AddressOfCallBacks as *mut PIMAGE_TLS_CALLBACK;
+
+        type tls_prototype = unsafe extern "system" fn(dll_handle: *mut c_void, dw_reason: u32, reserved: *mut c_void);
+
+        while !(*tls_callback.is_null()) {
+
+            let _fn = (**tls_callback) as tls_prototype;
+
+            _fn(dll_address, 1, null_mut());
+
+            tls_callback = tls_callback.offset(1);
+        }
+    }
+
 }
