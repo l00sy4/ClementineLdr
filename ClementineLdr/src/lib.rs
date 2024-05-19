@@ -5,8 +5,6 @@
 #![allow(non_camel_case_types)]
 
 pub use core::{ffi::c_void, arch::asm, slice::from_raw_parts, mem::size_of};
-use core::mem::transmute;
-use core::ptr::null_mut;
 
 pub use windows_sys::{
     Win32::{
@@ -124,8 +122,7 @@ pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_
         while !(*tls_callback.is_null()) {
 
             let _fn = (**tls_callback) as tls_prototype;
-
-            _fn(dll_address, 1, null_mut());
+            _fn(dll_address, 1, 0 as *mut c_void);
 
             tls_callback = tls_callback.offset(1);
         }
