@@ -24,7 +24,7 @@ The helper component contains the code I used to calculate the function names' h
 
 - Sleep mask using ROP chains
 
-- Allocate PE in chunks
+- Inject PE in chunks and clean up after allocation
 
 - Hooks
 
