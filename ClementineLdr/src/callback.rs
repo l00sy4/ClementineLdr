@@ -77,12 +77,14 @@ pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTA
 }
 
 #[repr(C)]
-pub struct load_library_args {
+pub struct nt_protect_args {
     pub function_pointer: usize,
-    pub library_name: *const i8,
+    pub process: isize,
+    pub address: *mut c_void,
+    pub size: *mut usize,
+    pub access_protection: u32,
 }
 
-#[repr(C)]
 pub struct nt_alloc_args {
     pub function_pointer: usize,
     pub process: isize,
@@ -92,10 +94,7 @@ pub struct nt_alloc_args {
 }
 
 #[repr(C)]
-pub struct nt_protect_args {
+pub struct load_library_args {
     pub function_pointer: usize,
-    pub process: isize,
-    pub address: *mut c_void,
-    pub size: *mut usize,
-    pub access_protection: u32,
+    pub library_name: *const i8,
 }
