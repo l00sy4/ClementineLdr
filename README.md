@@ -6,7 +6,7 @@ Clementine is a fresh take on reflective loading
 
 # Description
 
-The loader attempts to allocate the PE at it's preferred address in order to avoid performing relocation. Afterwards it will copy the PE's sections in the allocated memory and proceed with relocation if needed. The DOS and NT headers are left out, as having them in private memory doesn't make sense. Before changing the protection of each section, it will resolve imports and call the user-defined function (in this case `ClementineInit` 
+The loader attempts to allocate the PE in chunks at it's preferred address in order to avoid performing relocation. Afterwards it will copy the PE's sections in the allocated memory and proceed with relocation if needed. The DOS and NT headers are left out, as having them in private memory doesn't make sense. Before changing the protection of each section, it will resolve imports and  finish by calling the user-defined function (in this case `ClementineInit`)
 
 The injector is planned to be simple, as it's purpose will be to show off the loader itself
 
