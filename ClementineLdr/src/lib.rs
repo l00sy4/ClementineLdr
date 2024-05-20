@@ -104,6 +104,7 @@ pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_
     let dll_size = (*nt_header).OptionalHeader.SizeOfImage as usize;
     let preferred_dll_address = (*nt_header).OptionalHeader.ImageBase as usize;
 
+
     /* If loaded at it's preferred address, skip relocation and IAT reparation */
 
     // ...

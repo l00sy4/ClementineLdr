@@ -1,3 +1,4 @@
+use windows_sys::Win32::System::Diagnostics::Debug::CONTEXT;
 use crate::{
     PTP_WORK,
     HMODULE,
@@ -54,6 +55,21 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
         "mov r10, [rbx + 0x20]",
         "mov [rsp+0x30], r10",
         "mov r10, 0x3000",
+        "mov [rsp+0x28], r10",
+        "jmp rax",
+        in("rdi") context,
+        )
+}
+
+#[link_section = ".text"]
+pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work :PTP_WORK) {
+    asm!("mov rbx, rdi"
+        "mov rax, [rbx]"
+        "mov rcx, [rbx + 0x8]"
+        "mov rdx, [rbx + 0x10]"
+        "mov r8, [rbx + 0x18]",
+        "mov r9, [rbx + 0x20]",
+        "mov r10, 0x0",
         "mov [rsp+0x28], r10",
         "jmp rax",
         in("rdi") context,
