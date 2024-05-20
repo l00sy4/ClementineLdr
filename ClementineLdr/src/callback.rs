@@ -54,7 +54,7 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
         "mov r9, [rbx + 0x18]",
         "mov r10, [rbx + 0x20]",
         "mov [rsp+0x30], r10",
-        "mov r10, 0x3000",
+        "mov r10, 0x2000", // Need to fix this
         "mov [rsp+0x28], r10",
         "jmp rax",
         in("rdi") context,
