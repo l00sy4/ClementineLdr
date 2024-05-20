@@ -55,10 +55,11 @@ pub use windows_sys::{
 
 mod api_hashing;
 mod reloc;
-mod iat;
+mod fix_iat;
 mod memory_perms;
 mod callback;
 mod sleep;
+mod Inject;
 
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
@@ -85,27 +86,24 @@ pub unsafe extern "system" fn _DllMainCRTStartup(
 
 #[link_section = ".text"]
 #[no_mangle]
-pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_address: isize, ntdll_address: isize) {
+pub unsafe extern "system" fn ClementineInit(pe_address: *mut c_void, kernel32_address: isize, ntdll_address: isize) {
 
-    if dll_address.is_null() {
+    if pe_address.is_null() || (!kernel32_address &&!ntdll_address) {
         return;
     }
 
-    if !kernel32_address || !ntdll_address {
-        return;
-    }
-
-    let base_address = dll_address as usize;
+    let base_address = pe_address as usize;
     #[cfg(target_arch = "x86_64")]
         let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
     #[cfg(target_arch = "x86")]
         let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS32;
 
-    let dll_size = (*nt_header).OptionalHeader.SizeOfImage as usize;
-    let preferred_dll_address = (*nt_header).OptionalHeader.ImageBase as usize;
+    let pe_size = (*nt_header).OptionalHeader.SizeOfImage as usize;
+    let pe_preferred_address = (*nt_header).OptionalHeader.ImageBase as usize;
 
-
-    /* If loaded at it's preferred address, skip relocation and IAT reparation */
+    /* Call the function which injects PE in chunks.
+       If loaded at it's preferred address, skip relocation and IAT reparation
+    */
 
     // ...
 
@@ -123,7 +121,7 @@ pub unsafe extern "system" fn ClementineInit(dll_address: *mut c_void, kernel32_
         while !(*tls_callback.is_null()) {
 
             let _fn = (**tls_callback) as tls_prototype;
-            _fn(dll_address, 1, 0 as *mut c_void);
+            _fn(pe_address, 1, 0 as *mut c_void);
 
             tls_callback = tls_callback.offset(1);
         }
