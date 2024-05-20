@@ -37,27 +37,14 @@ pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
     return None;
 }
 
-pub unsafe fn get_dll_address(dll_name: *const u8) -> Option<isize> {
-
-    let address= LoadLibraryA(dll_name);
-
-    if address == 0 {
-        return None;
-    }
-
-    return Some(address);
-}
-
-
-
 fn main() {
 
 unsafe {
     let ntdll_name  = CString::new("ntdll").unwrap().as_bytes().as_ptr();
     let kernel32_name = CString::new("kernel32").unwrap().as_bytes().as_ptr();
 
-    let ntdll_address: isize = get_dll_address(ntdll_name).unwrap();
-    let kernel32_address: isize = get_dll_address(kernel32_name).unwrap();
+    let ntdll_address: isize = LoadLibraryA(ntdll_name).ok_or(None)?;
+    let kernel32_address: isize = LoadLibraryA(kernel32_name).ok_or(None)?;
     }
 
 }
