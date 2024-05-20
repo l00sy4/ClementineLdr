@@ -32,7 +32,7 @@ The helper component contains the code I used to calculate the function names' h
 
 ### Usage
 
-I'll complete this when the project is done
+Gonna fill this in when the project is done
 
  
 # Credits
