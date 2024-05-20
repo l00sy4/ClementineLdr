@@ -1,3 +1,4 @@
+use windows_sys::Win32::System::Diagnostics::Debug::CONTEXT;
 use crate::{
     PTP_WORK,
     HMODULE,
@@ -60,19 +61,19 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
         )
 }
 
-#[repr(C)]
-pub struct load_library_args {
-    pub function_pointer: usize,
-    pub library_name: *const i8,
-}
-
-#[repr(C)]
-pub struct nt_alloc_args {
-    pub function_pointer: usize,
-    pub process: isize,
-    pub address: *mut c_void,
-    pub size: *mut usize,
-    pub permissions: u32
+#[link_section = ".text"]
+pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work :PTP_WORK) {
+    asm!("mov rbx, rdi"
+        "mov rax, [rbx]"
+        "mov rcx, [rbx + 0x8]"
+        "mov rdx, [rbx + 0x10]"
+        "mov r8, [rbx + 0x18]",
+        "mov r9, [rbx + 0x20]",
+        "mov r10, 0x0",
+        "mov [rsp+0x28], r10",
+        "jmp rax",
+        in("rdi") context,
+        )
 }
 
 #[repr(C)]
@@ -82,4 +83,18 @@ pub struct nt_protect_args {
     pub address: *mut c_void,
     pub size: *mut usize,
     pub access_protection: u32,
+}
+
+pub struct nt_alloc_args {
+    pub function_pointer: usize,
+    pub process: isize,
+    pub address: *mut c_void,
+    pub size: *mut usize,
+    pub permissions: u32
+}
+
+#[repr(C)]
+pub struct load_library_args {
+    pub function_pointer: usize,
+    pub library_name: *const i8,
 }
