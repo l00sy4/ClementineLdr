@@ -1,5 +1,5 @@
-
 use crate::IMAGE_NT_HEADERS64;
+
 #[link_section = ".text"]
 pub unsafe fn fix_mem_perms(base_address: usize, nt_headers: *const IMAGE_NT_HEADERS64, section_header: *IMAGE_SECTION_HEADER) -> bool {
 
