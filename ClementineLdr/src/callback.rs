@@ -10,7 +10,8 @@ use crate::{
     NTSTATUS,
     c_void,
     asm,
-    PTP_CALLBACK_INSTANCE
+    PTP_CALLBACK_INSTANCE,
+    sleep::sleep
 };
 
 type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *mut c_void, *mut TP_CALLBACK_ENVIRON_V3) -> NTSTATUS;
@@ -30,6 +31,8 @@ pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void, ntdl
     tp_post_work(work_return);
     tp_release_work(work_return);
 
+
+    sleep(0x1000);
     return true;
 }
 

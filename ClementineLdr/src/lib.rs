@@ -121,7 +121,7 @@ pub unsafe extern "system" fn ClementineInit(pe_address: *mut c_void, kernel32_a
 
     let padded_pe_size: usize = pe_size + 4096 & !4096;
     let mut alloc = nt_alloc_args {
-        function_pointer: nt_alloc_ptr ,
+        function_pointer: nt_alloc_ptr,
         process: -1,
         address: pe_preferred_address,
         size: *padded_pe_size,
