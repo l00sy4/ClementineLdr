@@ -1,4 +1,3 @@
-use windows_sys::Win32::System::Diagnostics::Debug::CONTEXT;
 use crate::{
     PTP_WORK,
     HMODULE,
@@ -47,7 +46,7 @@ pub unsafe extern "stdcall" fn loadlibrary_callback(_instance: PTP_CALLBACK_INST
 #[link_section = ".text"]
 pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: PTP_WORK) {
 
-    // Goofy work-around
+    // Goofy work-around, I need to test this separately
     let alloc_type = (*(context as *const nt_alloc_args)).alloc_type;
 
     asm!("mov rbx, rdi"
