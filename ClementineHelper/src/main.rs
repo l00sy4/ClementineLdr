@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 pub fn dbj2_hash(buffer: &[u8]) -> u32
 {
     let mut hash: u32 = 5441;

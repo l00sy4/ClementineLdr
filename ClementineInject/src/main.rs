@@ -15,7 +15,7 @@ use windows_sys::{
     }
 };
 
-pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
+pub unsafe fn rva2offset(rva: usize, base_address: usize) -> Option<usize> {
 
     #[cfg(target_arch = "x86_64")]
         let nt_header = (base_address + (*(base_address as *mut IMAGE_DOS_HEADER)).e_lfanew as usize) as *mut IMAGE_NT_HEADERS64;
@@ -26,11 +26,11 @@ pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
         return None;
     }
 
-    let section_header = (*(&nt_header).OptionalHeader as usize + (*nt_header).FileHeader.SizeOfOptionalHeader as usize) as *mut IMAGE_SECTION_HEADER;
+    let section_header = (&(*nt_header).OptionalHeader as *const _ as usize + (*nt_header).FileHeader.SizeOfOptionalHeader as usize) as *mut IMAGE_SECTION_HEADER;
 
-    for i in 0..(*nt_header).FileHeader.NumberOfSections {
+    for i in 0..(*nt_header).FileHeader.NumberOfSections as usize {
         if rva > (*section_header).VirtualAddress[i] && rva < ((*section_header).VirtualAddress[i] + (*section_header).Misc.VirtualSize[i]) {
-            Some((rva - (*section_header).VirtualAddress[i]) + (*section_header).PointerToRawData[i]) as u32;
+            Some(((rva - (*section_header).VirtualAddress[i]) + (*section_header).PointerToRawData[i]));
         }
     }
 
@@ -39,12 +39,16 @@ pub unsafe fn rva2offset(rva: u32, base_address: usize) -> Option<u32> {
 
 fn main() {
 
-unsafe {
-    let ntdll_name  = CString::new("ntdll").unwrap().as_bytes().as_ptr();
+    unsafe {
+    let ntdll_name = CString::new("ntdll").unwrap().as_bytes().as_ptr();
     let kernel32_name = CString::new("kernel32").unwrap().as_bytes().as_ptr();
 
-    let ntdll_address: isize = LoadLibraryA(ntdll_name).ok_or(None)?;
-    let kernel32_address: isize = LoadLibraryA(kernel32_name).ok_or(None)?;
-    }
+    let ntdll_address: isize = LoadLibraryA(ntdll_name);
+    let kernel32_address: isize = LoadLibraryA(kernel32_name);
 
+
+    if ntdll_address == 0 || kernel32_address == 0 {
+        return;
+    }
+}
 }

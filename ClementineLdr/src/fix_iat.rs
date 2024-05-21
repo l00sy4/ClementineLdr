@@ -1,3 +1,4 @@
+use core::ffi::c_void;
 use crate::{
     reloc::IMAGE_DATA_DIRECTORY,
     callback::{
@@ -26,14 +27,12 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
 
     let mut import_descriptor = (base_address + (*data_directory).VirtualAddress as usize) as *mut IMAGE_IMPORT_DESCRIPTOR;
 
-    if import_descriptor.is_null() {
+    let load_library_ptr = get_function_address(kernel32_address, LOAD_LIBRARY_A_HASH).unwrap();
+
+    if import_descriptor.is_null() || load_library_ptr == 0 {
         return false;
     }
 
-    let mut args = load_library_args {
-        function_pointer: get_function_address(kernel32_address, LOAD_LIBRARY_A_HASH).unwrap(),
-        library_name
-    };
 
     while (*import_descriptor).Name != 0 {
         let dll_name = (base_address + (*import_descriptor).Name as usize) as *const i8;
@@ -43,9 +42,12 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
             return false;
         }
 
-        args.library_name = dll_name;
+        let mut args = *mut load_library_args {
+            function_pointer: load_library_ptr,
+            library_name: dll_name
+        };
 
-        exec_callback(*(loadlibrary_callback) as *mut PTP_WORK_CALLBACK, *args, ntdll_address);
+        exec_callback(*(loadlibrary_callback) as *mut PTP_WORK_CALLBACK, (&mut args) as *mut c_void, ntdll_address);
 
         #[cfg(target_arch = "x86_64")]
             let mut original_first_thunk = if (base_address + (*import_descriptor).Anonymous.OriginalFirstThunk as usize) != 0 {
