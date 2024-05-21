@@ -21,7 +21,9 @@ pub use windows_sys::{
                 IMAGE_EXPORT_DIRECTORY,
                 IMAGE_TLS_DIRECTORY64,
                 IMAGE_TLS_DIRECTORY32,
-                PIMAGE_TLS_CALLBACK
+                PIMAGE_TLS_CALLBACK,
+                IMAGE_IMPORT_BY_NAME,
+                IMAGE_ORDINAL_FLAG64
             },
             Threading::{
                 PPS_POST_PROCESS_INIT_ROUTINE,
@@ -40,8 +42,12 @@ pub use windows_sys::{
                     CONTEXT
                 }
             },
-            Memory::PAGE_READONLY,
-            WindowsProgramming::CLIENT_ID
+            Memory::{
+                PAGE_READONLY, MEM_RESERVE
+            },
+            WindowsProgramming::{
+                CLIENT_ID, IMAGE_THUNK_DATA64, IMAGE_THUNK_DATA32
+            },
         },
         Foundation::{
             BOOLEAN,
@@ -53,8 +59,11 @@ pub use windows_sys::{
         }
     }
 };
-use crate::api_hashing::get_function_address;
-use crate::callback::nt_alloc_args;
+
+use crate::{
+    api_hashing::get_function_address,
+    callback::nt_alloc_args
+};
 
 mod api_hashing;
 mod reloc;
@@ -111,12 +120,15 @@ pub unsafe extern "system" fn ClementineInit(pe_address: *mut c_void, kernel32_a
     let nt_alloc_ptr: usize = get_function_address(ntdll_address, NT_ALLOC_HASH).unwrap();
 
     let padded_pe_size: usize = pe_size + 4096 & !4096;
-    let mut alloc = nt_alloc_args { function_pointer: nt_alloc_ptr ,
+    let mut alloc = nt_alloc_args {
+        function_pointer: nt_alloc_ptr,
         process: -1,
         address: pe_preferred_address,
-        size: *pe_size,
-        permissions: PAGE_READONLY
+        size: *padded_pe_size,
+        permissions: PAGE_READONLY,
+        alloc_type: MEM_RESERVE
     };
+
 
     // to-do
 
