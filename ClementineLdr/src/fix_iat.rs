@@ -8,19 +8,20 @@ use crate::{reloc::IMAGE_DATA_DIRECTORY, callback::{
 use crate::callback::loadlibrary_callback;
 
 #[link_section = ".text"]
-pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize, kernel32_address: isize) -> bool {
+pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address: usize, kernel32_address: isize,
+                      ntdll_address: isize) -> bool {
 
     if data_directory.is_null() {
         return false;
     }
 
     let mut import_descriptor = (base_address + (*data_directory).VirtualAddress as usize) as *mut IMAGE_IMPORT_DESCRIPTOR;
+    let load_library_ptr = get_function_address(kernel32_address, LOAD_LIBRARY_A_HASH).unwrap();
 
     if import_descriptor.is_null() {
         return false;
     }
 
-    let load_library_ptr = get_function_address(kernel32_address, LOAD_LIBRARY_A_HASH).unwrap();
 
     while (*import_descriptor).Name != 0 {
 
@@ -35,10 +36,10 @@ pub unsafe fn fix_iat(data_directory: *const IMAGE_DATA_DIRECTORY, base_address:
             library_name: dll_name
         };
 
-        exec_callback(*(loadlibrary_callback) as PTP_WORK_CALLBACK, *args);
+        exec_callback(*(loadlibrary_callback) as PTP_WORK_CALLBACK, *args, ntdll_address);
     }
 
-    false
+   return false;
 }
 
 #[repr(C)]

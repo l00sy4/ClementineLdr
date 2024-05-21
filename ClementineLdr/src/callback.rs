@@ -46,6 +46,10 @@ pub unsafe extern "stdcall" fn loadlibrary_callback(_instance: PTP_CALLBACK_INST
 
 #[link_section = ".text"]
 pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: PTP_WORK) {
+
+    // Goofy work-around
+    let alloc_type = (*(context as *const nt_alloc_args)).alloc_type;
+
     asm!("mov rbx, rdi"
         "mov rax, [rbx]"
         "mov rcx, [rbx + 0x8]"
@@ -54,26 +58,30 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
         "mov r9, [rbx + 0x18]",
         "mov r10, [rbx + 0x20]",
         "mov [rsp+0x30], r10",
-        "mov r10, 0x2000", // Need to fix this
+        "mov r10, {alloc_type}",
         "mov [rsp+0x28], r10",
         "jmp rax",
         in("rdi") context,
-        )
+        alloc_type = in(reg) alloc_type,
+        );
 }
 
 #[link_section = ".text"]
 pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work :PTP_WORK) {
+
+    let output = 0 as *mut u32;
+
     asm!("mov rbx, rdi"
         "mov rax, [rbx]"
         "mov rcx, [rbx + 0x8]"
         "mov rdx, [rbx + 0x10]"
         "mov r8, [rbx + 0x18]",
         "mov r9, [rbx + 0x20]",
-        "mov r10, 0x0",
         "mov [rsp+0x28], r10",
         "jmp rax",
         in("rdi") context,
-        )
+        in("r10") output
+        );
 }
 
 #[repr(C)]
@@ -90,7 +98,8 @@ pub struct nt_alloc_args {
     pub process: isize,
     pub address: *mut c_void,
     pub size: *mut usize,
-    pub permissions: u32
+    pub permissions: u32,
+    pub alloc_type: u32
 }
 
 #[repr(C)]
