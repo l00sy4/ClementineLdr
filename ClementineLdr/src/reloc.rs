@@ -9,15 +9,23 @@ pub unsafe fn fix_reloc(data_directory: *const IMAGE_DATA_DIRECTORY, base_addres
         let mut base_relocation_entry = (image_base_relocation as usize + 1) as *mut BASE_RELOCATION_ENTRY;
         let number_of_entries: usize = (*image_base_relocation).SizeOfBlock as usize - (size_of::<IMAGE_BASE_RELOCATION>()) / size_of::<u16>();
 
+        let mut temp = 0;
+
         for _ in 0..number_of_entries {
 
             match (*base_relocation_entry).Type {
 
-                10 => { *((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u64) as usize += delta},
-                3 => {*((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u32) as usize += delta >> 16},
-                1 => {*((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u16) as usize += delta},
+                10 => { temp = *((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u64) as usize;
+                        temp += delta;
+                },
+                3 => { temp = *((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u32) as usize;
+                       temp += delta >> 16;
+                },
+                1 => { temp = *((base_address + (*image_base_relocation).VirtualAddress as usize + (*base_relocation_entry).Offset as usize) as *mut u16) as usize;
+                       temp += delta;
+                },
                 0 => (),
-                _ => { return false;}
+                _ => return false
             }
 
             base_relocation_entry = base_relocation_entry.offset(1);
