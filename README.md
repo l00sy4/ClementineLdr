@@ -16,13 +16,13 @@ The helper component contains the code I used to calculate the function names' h
 
 - API hashing without walking the PEB. Since the injector will be backed by a file, it can safely call `LoadLibrary` and pass the address to the loader
 
-- As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` to execute callbacks, as per the second reference
+- !WILL BE CHANGED! As call stacks from LoadLibrary, NtAllocateVirtualMemory and NtProtectVirtualMemory leading to unbacked RX memory can lead to detections, Clementine uses `TpAllocWork` to execute callbacks, as per the second reference
 
 - Sets up exception handlers and executes TLS callbacks, if they exist
 
 ##### In Progress
 
-- Sleep mask using ROP chains
+- Sleep mask
 
 - Inject PE in chunks and clean up after allocation
 
